@@ -12,7 +12,7 @@
 // Build
 //   arduino-cli lib install "NimBLE-Arduino"
 //   arduino-cli compile --fqbn esp32:esp32:esp32s3 \
-//     --build-property "build.partitions=min_spiffs" pwnagotchi-esp32s3
+//     --build-property "build.partitions=max_app_4MB" pwnagotchi-esp32s3
 
 #include <Arduino.h>
 #include <NimBLEDevice.h>
@@ -395,6 +395,7 @@ static void ble_setup() {
 
 // ─── wifi ────────────────────────────────────────────────────────────────
 static void wifi_setup() {
+    esp_event_loop_create_default();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     esp_wifi_init(&cfg);
     esp_wifi_set_storage(WIFI_STORAGE_RAM);

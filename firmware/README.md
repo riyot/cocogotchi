@@ -77,7 +77,7 @@ arduino-cli core install esp32:esp32 \
   --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
 arduino-cli lib install "NimBLE-Arduino"
 arduino-cli compile --fqbn esp32:esp32:esp32s3 \
-  --build-property "build.partitions=min_spiffs" pwnagotchi-esp32s3
+  --build-property "build.partitions=max_app_4MB" pwnagotchi-esp32s3
 ```
 
 ## why this split
