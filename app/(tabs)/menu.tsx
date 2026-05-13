@@ -10,6 +10,12 @@ import { espService } from '@/services/esp-router';
 
 const DAY_MS = 24 * 3600 * 1000;
 
+const MODES: { id: EspMode; label: string }[] = [
+  { id: 'mock', label: 'mock' },
+  { id: 'http', label: 'http' },
+  { id: 'ble', label: 'ble' },
+];
+
 export default function Menu() {
   const { being, reset } = useBeing();
   const router = useRouter();
@@ -76,42 +82,49 @@ export default function Menu() {
       <ScrollView contentContainerStyle={styles.body}>
         <Section title="esp link">
           <View style={styles.modeRow}>
-            <Pressable
-              style={[styles.modeBtn, config.mode === 'mock' && styles.modeBtnActive]}
-              onPress={() => applyMode('mock')}
-            >
-              <Text style={[styles.modeBtnText, config.mode === 'mock' && styles.modeBtnTextActive]} allowFontScaling={false}>
-                mock
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[styles.modeBtn, config.mode === 'http' && styles.modeBtnActive]}
-              onPress={() => applyMode('http')}
-            >
-              <Text style={[styles.modeBtnText, config.mode === 'http' && styles.modeBtnTextActive]} allowFontScaling={false}>
-                http
-              </Text>
-            </Pressable>
+            {MODES.map((m) => (
+              <Pressable
+                key={m.id}
+                style={[styles.modeBtn, config.mode === m.id && styles.modeBtnActive]}
+                onPress={() => applyMode(m.id)}
+              >
+                <Text
+                  style={[styles.modeBtnText, config.mode === m.id && styles.modeBtnTextActive]}
+                  allowFontScaling={false}
+                >
+                  {m.label}
+                </Text>
+              </Pressable>
+            ))}
           </View>
-          <Text style={styles.smallLabel} allowFontScaling={false}>
-            esp32 base url
-          </Text>
-          <TextInput
-            value={urlDraft}
-            onChangeText={setUrlDraft}
-            onSubmitEditing={applyUrl}
-            placeholder="http://pwn-esp32.local"
-            placeholderTextColor={colors.dim}
-            autoCapitalize="none"
-            autoCorrect={false}
-            style={styles.urlInput}
-            allowFontScaling={false}
-          />
-          <Pressable style={styles.urlSave} onPress={applyUrl}>
-            <Text style={styles.urlSaveText} allowFontScaling={false}>
-              save url
+          {config.mode === 'http' && (
+            <>
+              <Text style={styles.smallLabel} allowFontScaling={false}>
+                esp32 base url
+              </Text>
+              <TextInput
+                value={urlDraft}
+                onChangeText={setUrlDraft}
+                onSubmitEditing={applyUrl}
+                placeholder="http://pwn-esp32.local"
+                placeholderTextColor={colors.dim}
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={styles.urlInput}
+                allowFontScaling={false}
+              />
+              <Pressable style={styles.urlSave} onPress={applyUrl}>
+                <Text style={styles.urlSaveText} allowFontScaling={false}>
+                  save url
+                </Text>
+              </Pressable>
+            </>
+          )}
+          {config.mode === 'ble' && (
+            <Text style={styles.smallLabel} allowFontScaling={false}>
+              auto-scans for pwn-* devices. grant bluetooth permission on prompt.
             </Text>
-          </Pressable>
+          )}
         </Section>
 
         <Section title="identity">

@@ -1,4 +1,5 @@
 import type { EspEvent, EspService, EspStatus, Handshake, Network, Unsubscribe } from './esp';
+import { BleEspService } from './esp-ble';
 import type { EspConfig } from './esp-config';
 import { HttpEspService } from './esp-http';
 import { MockEspService } from './esp-mock';
@@ -21,7 +22,15 @@ class EspRouter implements EspService {
       (cfg.mode === 'http' && cfg.baseUrl !== this.config.baseUrl);
     this.config = cfg;
     if (!changed) return;
-    this.swapInner(cfg.mode === 'http' ? new HttpEspService(cfg.baseUrl) : new MockEspService());
+    this.swapInner(this.buildInner(cfg));
+  }
+
+  private buildInner(cfg: EspConfig): EspService {
+    switch (cfg.mode) {
+      case 'http': return new HttpEspService(cfg.baseUrl);
+      case 'ble': return new BleEspService();
+      default: return new MockEspService();
+    }
   }
 
   currentConfig(): EspConfig {

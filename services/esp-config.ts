@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export type EspMode = 'mock' | 'http';
+export type EspMode = 'mock' | 'http' | 'ble';
 
 export type EspConfig = {
   mode: EspMode;

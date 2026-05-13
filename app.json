@@ -41,7 +41,15 @@
       ],
       "expo-font",
       "expo-image",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": false,
+          "neverForLocation": true,
+          "modes": ["central"]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
