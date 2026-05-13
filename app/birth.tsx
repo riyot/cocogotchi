@@ -22,7 +22,7 @@ const PERSONALITIES: { id: Personality; label: string; desc: string }[] = [
   { id: 'lonely', label: 'lonely', desc: 'craves peers · clingy' },
 ];
 
-const RANDOM_NAMES = ['pip', 'bytes', 'wisp', 'crumb', 'loki', 'ash', 'zero', 'echo'];
+const DEFAULT_NAME = 'cocogotchi';
 
 export default function Birth() {
   const router = useRouter();
@@ -31,11 +31,9 @@ export default function Birth() {
   const [personality, setPersonality] = useState<Personality>('curious');
   const [busy, setBusy] = useState(false);
 
-  const placeholder = RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)];
-
   const handleInit = async () => {
     if (busy) return;
-    const finalName = name.trim() || placeholder;
+    const finalName = name.trim() || DEFAULT_NAME;
     setBusy(true);
     await birth(finalName, personality);
     router.replace('/(tabs)');
@@ -61,7 +59,7 @@ export default function Birth() {
           </Text>
           <TextInput
             style={styles.input}
-            placeholder={`${placeholder} (random)`}
+            placeholder={`${DEFAULT_NAME} (default)`}
             placeholderTextColor={colors.dim}
             value={name}
             onChangeText={setName}
