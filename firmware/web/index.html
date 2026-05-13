@@ -28,6 +28,18 @@
         color: #f57d7d;
       }
       .box { border: 1px solid #262626; padding: 16px; margin: 16px 0; }
+      .dl-btn {
+        display: inline-block;
+        padding: 10px 16px;
+        background: #111;
+        color: #7df57d;
+        border: 1px solid #7df57d;
+        text-decoration: none;
+        letter-spacing: 1px;
+        font-size: 13px;
+      }
+      .dl-btn:hover { background: #0d1a0d; }
+      .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
     </style>
   </head>
   <body>
@@ -44,7 +56,7 @@
       </ol>
     </div>
 
-    <p>
+    <div class="row">
       <esp-web-install-button manifest="./manifest.json">
         <span slot="unsupported" class="danger">
           your browser does not support webusb. use desktop chrome or edge.
@@ -53,6 +65,13 @@
           this page must be served over https. open the github pages url, not a local file.
         </span>
       </esp-web-install-button>
+      <a class="dl-btn" href="./cocogotchi.bin" download="cocogotchi.bin">
+        ↓ download cocogotchi.bin
+      </a>
+    </div>
+    <p class="dim">
+      <code>cocogotchi.bin</code> is a merged image (bootloader + partitions + boot_app0 + app).
+      flash anywhere with <code>esptool.py --chip esp32s3 write_flash 0x0 cocogotchi.bin</code>.
     </p>
 
     <p class="dim">
