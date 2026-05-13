@@ -20,6 +20,7 @@
 #include <esp_event.h>
 #include <esp_err.h>
 #include <esp_log.h>
+#include <esp_mac.h>
 #include <string.h>
 
 // ─── config ──────────────────────────────────────────────────────────────
@@ -369,8 +370,8 @@ class ControlCallbacks : public NimBLECharacteristicCallbacks {
 };
 
 static void ble_setup() {
-    uint8_t mac[6];
-    esp_efuse_mac_get_default(mac);
+    uint8_t mac[6] = {0};
+    esp_read_mac(mac, ESP_MAC_BT);
     char name[16];
     snprintf(name, sizeof(name), "%s%02X%02X%02X", DEVICE_NAME_PREFIX, mac[3], mac[4], mac[5]);
 
