@@ -1,8 +1,39 @@
 import type { EspEvent, EspService, EspStatus, Handshake, Network, Unsubscribe } from './esp';
-import { BleEspService } from './esp-ble';
 import type { EspConfig } from './esp-config';
 import { HttpEspService } from './esp-http';
 import { MockEspService } from './esp-mock';
+
+function loadBleService(): EspService {
+  try {
+    // Lazy require so the BLE native module is only touched when the user
+    // explicitly picks 'ble' mode — keeps Expo Go (mock/http) safe.
+    const { BleEspService } = require('./esp-ble') as typeof import('./esp-ble');
+    return new BleEspService();
+  } catch (err) {
+    return new BrokenBleService(err instanceof Error ? err.message : String(err));
+  }
+}
+
+class BrokenBleService implements EspService {
+  private status: EspStatus;
+  constructor(reason: string) {
+    this.status = {
+      mood: 'sad',
+      face: 'SAD',
+      saying: `ble unavailable: ${reason}`,
+      uptimeSec: 0,
+      channel: 0,
+      scanning: false,
+      counters: { networksSeen: 0, handshakesCaught: 0, deauthsSent: 0, peersSeen: 0 },
+    };
+  }
+  getStatus(): EspStatus { return this.status; }
+  getNetworks(): Network[] { return []; }
+  getHandshakes(): Handshake[] { return []; }
+  subscribe(_l: (e: EspEvent) => void): Unsubscribe { return () => {}; }
+  start(): void {}
+  stop(): void {}
+}
 
 class EspRouter implements EspService {
   private inner: EspService;
@@ -28,7 +59,7 @@ class EspRouter implements EspService {
   private buildInner(cfg: EspConfig): EspService {
     switch (cfg.mode) {
       case 'http': return new HttpEspService(cfg.baseUrl);
-      case 'ble': return new BleEspService();
+      case 'ble': return loadBleService();
       default: return new MockEspService();
     }
   }
