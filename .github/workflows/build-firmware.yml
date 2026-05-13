@@ -1,0 +1,92 @@
+name: build firmware + publish flasher
+
+on:
+  push:
+    paths:
+      - 'firmware/**'
+      - '.github/workflows/build-firmware.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup arduino-cli
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: install esp32 platform + libs
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls \
+            https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32
+          arduino-cli lib install "NimBLE-Arduino"
+
+      - name: compile sketch
+        run: |
+          mkdir -p build
+          arduino-cli compile \
+            --fqbn esp32:esp32:esp32s3 \
+            --build-property "build.partitions=min_spiffs" \
+            --output-dir build \
+            firmware/pwnagotchi-esp32s3
+
+      - name: assemble flasher site
+        run: |
+          mkdir -p site
+          cp firmware/web/index.html site/
+          cd build
+          ls -la
+          for f in *.bootloader.bin; do cp "$f" ../site/bootloader.bin; done
+          for f in *.partitions.bin; do cp "$f" ../site/partitions.bin; done
+          for f in *.bin; do
+            case "$f" in
+              *.bootloader.bin|*.partitions.bin) ;;
+              *) cp "$f" ../site/pwnagotchi-esp32s3.bin ;;
+            esac
+          done
+          cd ..
+          VERSION="$(date -u +%Y.%m.%d-%H%M)-${GITHUB_SHA:0:7}"
+          sed "s/VERSION_PLACEHOLDER/$VERSION/" firmware/web/manifest.template.json > site/manifest.json
+          ls -la site/
+
+      - name: upload bin artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pwnagotchi-esp32s3-bin
+          path: site/*.bin
+          if-no-files-found: error
+
+      - name: configure pages
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: actions/configure-pages@v5
+
+      - name: upload pages artifact
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: deploy to pages
+        id: deployment
+        uses: actions/deploy-pages@v4

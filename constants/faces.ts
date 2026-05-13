@@ -1,0 +1,27 @@
+export const FACES = {
+  LOOK_R: '( ⚆_⚆)',
+  LOOK_L: '(☉_☉ )',
+  LOOK_R_HAPPY: '( ◕‿◕)',
+  LOOK_L_HAPPY: '(◕‿◕ )',
+  SLEEP: '(⇀‿‿↼)',
+  SLEEP2: '(≖‿‿≖)',
+  AWAKE: '( ◕‿◕ )',
+  BORED: '( ︶︹︶ )',
+  INTENSE: '(°▃▃°)',
+  COOL: '(⌐■_■)',
+  HAPPY: '(•‿‿•)',
+  EXCITED: '(ᵔ◡◡ᵔ)',
+  GRATEFUL: '(^‿‿^)',
+  DEMOTIVATED: '(╥☁╥ )',
+  MOTIVATED: '(☼‿‿☼)',
+  SMART: '(✜‿‿✜)',
+  LONELY: '(ب__ب)',
+  SAD: '(╥﹏╥)',
+  ANGRY: "(-_-')",
+  FRIEND: '(♥‿‿♥)',
+  BROKEN: '(☓‿‿☓)',
+  DEBUG: '(#__#)',
+  UPLOAD: '(1__1)',
+} as const;
+
+export type FaceName = keyof typeof FACES;

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>pwnagotchi-esp32s3 · web flasher</title>
+    <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+    <style>
+      :root { color-scheme: dark; }
+      body {
+        background: #0a0a0a; color: #e8e8e8;
+        font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+        max-width: 640px; margin: 0 auto; padding: 32px 20px;
+        line-height: 1.5;
+      }
+      h1 { color: #7df57d; font-size: 18px; letter-spacing: 2px; }
+      .dim { color: #8a8a8a; font-size: 13px; }
+      .danger { color: #f57d7d; }
+      .warn { color: #f5d97d; }
+      code { background: #111; padding: 2px 6px; border: 1px solid #262626; border-radius: 2px; }
+      ol li { margin-bottom: 8px; }
+      esp-web-install-button {
+        --esp-tools-button-color: #7df57d;
+        --esp-tools-button-text-color: #0a0a0a;
+        --esp-tools-button-border-radius: 0;
+      }
+      esp-web-install-button[install-unsupported]::part(unsupported) {
+        color: #f57d7d;
+      }
+      .box { border: 1px solid #262626; padding: 16px; margin: 16px 0; }
+    </style>
+  </head>
+  <body>
+    <h1>▸ pwnagotchi-esp32s3 · web flasher</h1>
+    <p class="dim">flashes the latest firmware directly to your esp32-s3 via webusb. chrome / edge on desktop only.</p>
+
+    <div class="box">
+      <p><strong>before clicking install:</strong></p>
+      <ol>
+        <li>unplug the esp32-s3</li>
+        <li>hold the <code>BOOT</code> button</li>
+        <li>plug usb-c while still holding <code>BOOT</code></li>
+        <li>release after 2 seconds — chip is now in download mode</li>
+      </ol>
+    </div>
+
+    <p>
+      <esp-web-install-button manifest="./manifest.json">
+        <span slot="unsupported" class="danger">
+          your browser does not support webusb. use desktop chrome or edge.
+        </span>
+        <span slot="not-allowed" class="warn">
+          this page must be served over https. open the github pages url, not a local file.
+        </span>
+      </esp-web-install-button>
+    </p>
+
+    <p class="dim">
+      builds are produced by github actions on every push to <code>firmware/</code>. the
+      <code>manifest.json</code> served alongside this page always points to the latest <code>.bin</code>.
+    </p>
+
+    <p class="dim">
+      need to roll back ? grab a previous build from the
+      <a href="../actions" style="color:#7df57d">workflow runs</a>.
+    </p>
+  </body>
+</html>
