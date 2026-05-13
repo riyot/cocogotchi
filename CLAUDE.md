@@ -36,7 +36,7 @@ by real WiFi handshakes captured by a companion ESP32-S3.
 - Reads / writes French in chat, prefers terse cyberpunk-style language in the
   app's diary entries.
 
-## Project state (last known)
+## Project state (last known — 2026-05-13)
 
 | Area              | State                                                         |
 |-------------------|---------------------------------------------------------------|
@@ -45,21 +45,17 @@ by real WiFi handshakes captured by a companion ESP32-S3.
 | Face animator     | Multi-frame per mood + particles + 15 spontaneous jokes       |
 | Being store       | Birth screen, AsyncStorage, time-decaying hunger/energy/health |
 | ESP service       | Router (mock + http). BLE service NOT written yet.            |
-| Firmware          | Compiles, published via GH Actions + Pages                    |
-| Flash             | Done at least once. Awaiting confirmation it actually boots.  |
-| BLE link          | Verification pending (see open question below)                |
+| Firmware          | Compiles, boots, BLE advertising works. Published via GH Actions + Pages |
+| Flash             | Verified on ESP32-S3 4MB (QFN56 rev v0.2, MAC e0:72:a1:e8:83:b0) |
+| BLE link          | ESP advertises as `pwn-E883B0`. App-side BLE client not written yet |
 
 ## Open questions / next steps
 
-- After flashing, the user reported **no output in the esp-web-tools serial
-  console** and **no `pwn-XXXXXX` device in nRF Connect**. The last commit
-  added `boot_app0.bin` at 0xE000 — needed for OTA partition tables. Re-flash
-  and recheck.
-- If still nothing: connect serial (115200 baud) on a desktop, look at boot
-  log. Possibilities: BLE/WiFi init crash, partition mismatch, bad merge.
-- Once the ESP advertises: write `services/esp-ble.ts` and eject from Expo Go
-  via `expo-dev-client` + `react-native-ble-plx`. EAS Build dev client is the
-  way (no admin needed on the user's setup).
+- Write `services/esp-ble.ts` and eject from Expo Go via `expo-dev-client` +
+  `react-native-ble-plx`. EAS Build dev client is the way (no admin needed on
+  the user's setup).
+- Test full BLE round-trip: connect from app → read STATUS → send SET_MODE →
+  verify channel hopping + handshake events.
 
 ## Layout
 
@@ -157,10 +153,13 @@ on PRoot.
 3. On a desktop with Chrome/Edge, open `https://riyot.github.io/cocogotchi/`,
    plug the ESP32 with BOOT held, click **Install**
 
-## Recent known issue (2026-05-13)
+## Build notes
 
-After a fresh flash, no serial output and no BLE device named `pwn-*`.
-The fix in commit `f200beb` adds `boot_app0.bin` at offset `0xE000` to the
-manifest. Re-flash with the new build before debugging further. If output
-is still empty, suspect: wrong baud rate (firmware uses 115200), or the
-partition table mismatch with the chip variant.
+- Partition scheme: `max_app_4MB` (single factory slot, 3.88 MB for app, no OTA)
+  — switched from `min_spiffs` in commit `e35bdda` because merged binary
+  overflowed 4 MB flash by 64 KB with dual OTA slots.
+- `esp_event_loop_create_default()` must be called before `esp_wifi_init()` —
+  without it, WiFi driver spams `failed to post WiFi event=43 ret=259`.
+- `boot_app0.bin` is not needed (no OTA partition). Removed from manifest and
+  merge_bin command.
+- ESP32-S3 chip: QFN56, 4 MB flash (XMC), 2 MB PSRAM (AP_3v3), rev v0.2.
