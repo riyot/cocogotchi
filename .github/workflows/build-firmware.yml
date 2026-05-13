@@ -58,6 +58,15 @@ jobs:
             esac
           done
           cd ..
+          # boot_app0.bin is required when the partition table has OTA slots.
+          # Find it in the installed ESP32 platform.
+          BOOT_APP0=$(find ~/.arduino15/packages/esp32 -name boot_app0.bin -type f | head -1)
+          if [ -n "$BOOT_APP0" ]; then
+            cp "$BOOT_APP0" site/boot_app0.bin
+            echo "boot_app0 source: $BOOT_APP0"
+          else
+            echo "WARN: boot_app0.bin not found, OTA table may not boot"
+          fi
           VERSION="$(date -u +%Y.%m.%d-%H%M)-${GITHUB_SHA:0:7}"
           sed "s/VERSION_PLACEHOLDER/$VERSION/" firmware/web/manifest.template.json > site/manifest.json
           ls -la site/
